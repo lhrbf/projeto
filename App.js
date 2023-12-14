@@ -1,5 +1,9 @@
 import { NavigationContainer } from '@react-navigation/native';
 import { StyleSheet, } from 'react-native';
+import Login from './pages/Login';
+import Cadastro from './pages/Cadastro';
+import Mapa from './pages/Mapa';
+import Favoritos from './pages/Favoritos';
 
 export default function App() {
   return (
