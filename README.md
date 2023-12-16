@@ -4,7 +4,7 @@ rotas: npm install react react-dom
 
 rotas navigate: npm install @react-navigation/native
 
-stack navigation: npm install @react-navigation/native-stack  
+stack navigation: npm install @react-navigation/native-stack 
 
 iniciar no expo: npx expo start
 
