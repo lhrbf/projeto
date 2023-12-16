@@ -6,7 +6,7 @@ import { Button, StyleSheet, TextInput, TouchableOpacity, View } from "react-nat
 function FormLogin() {
 
     const [email, onChangeEmail] = React.useState('');
-    const [senha, onChangeSenha] = React.useState('');
+    const [password, onChangePassword] = React.useState('');
     const [mensagemErro, setMensagemErro] = useState('');
     const navigation = useNavigation();
   
@@ -49,8 +49,8 @@ function FormLogin() {
         <TextInput
           style={styles.input}
           placeholder="Senha"
-          value={senha}
-          onChangeText={onChangeSenha}
+          value={password}
+          onChangeText={onChangePassword}
         />
         <View style={styles.divBotao}>
         <Button

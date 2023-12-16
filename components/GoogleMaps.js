@@ -2,10 +2,12 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import Geolocation from '@react-native-community/geolocation';
+import ContainerFav from './ContainerFav';
 
 const GoogleMaps = ({ onUpdateLocal }) => {
   const [region, setRegion] = useState(null);
   const [markers, setMarkers] = useState([]);
+  const [favoriteLocations, setFavoriteLocations] = useState([]);
 
   useEffect(() => {
     const watchId = Geolocation.watchPosition(
@@ -28,30 +30,49 @@ const GoogleMaps = ({ onUpdateLocal }) => {
       .then(data => setMarkers(data))
       .catch(error => console.error('Erro ao obter locais da API:', error));
 
+    const initialFavoriteLocations = [];
+    setFavoriteLocations(initialFavoriteLocations);
+
     return () => Geolocation.clearWatch(watchId);
   }, [onUpdateLocal]);
+
+  const handleFavoriteToggle = (markerId) => {
+    const updatedMarkers = markers.map(marker => (
+      marker.id === markerId ? { ...marker, favorited: !marker.favorited } : marker
+    ));
+    setMarkers(updatedMarkers);
+
+    const updatedFavoriteLocations = updatedMarkers.filter(marker => marker.favorited);
+    setFavoriteLocations(updatedFavoriteLocations);
+  };
 
   return (
     <View style={{ flex: 1 }}>
       {region ? (
-        <MapView
-          style={styles.map}
-          region={region}
-          showsUserLocation={true}
-          followsUserLocation={true}
-        >
-          {markers.map(marker => (
-            <Marker
-              key={marker.id}
-              coordinate={{
-                latitude: marker.latitude,
-                longitude: marker.longitude,
-              }}
-              title={marker.name}
-              description={marker.description}
-            />
-          ))}
-        </MapView>
+        <>
+          <MapView
+            style={styles.map}
+            region={region}
+            showsUserLocation={true}
+            followsUserLocation={true}
+          >
+            {markers.map(marker => (
+              <Marker
+                key={marker.id}
+                coordinate={{
+                  latitude: marker.latitude,
+                  longitude: marker.longitude,
+                }}
+                title={marker.name}
+                description={marker.description}
+              />
+            ))}
+          </MapView>
+          <ContainerFav
+            favoriteLocations={favoriteLocations}
+            onToggleFavorite={handleFavoriteToggle}
+          />
+        </>
       ) : (
         <Text style={styles.loadingText}>Carregando mapa...</Text>
       )}

@@ -7,7 +7,7 @@ function FormCadastro() {
 
     const [matricula, onChangeMatricula] = React.useState('');
     const [email, onChangeEmail] = React.useState('');
-    const [senha, onChangeSenha] = React.useState('');
+    const [password, onChangePassword] = React.useState('');
     const [mensagemErro, setMensagemErro] = useState('');
     const navigation = useNavigation();
   
@@ -56,8 +56,8 @@ function FormCadastro() {
         <TextInput
           style={styles.input}
           placeholder="Senha"
-          value={senha}
-          onChangeText={onChangeSenha}
+          value={password}
+          onChangeText={onChangePassword}
         />
         <View style={styles.divBotao}>
         <Button
