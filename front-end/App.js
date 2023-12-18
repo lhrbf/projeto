@@ -4,12 +4,14 @@ import Cadastro from './pages/Cadastro';
 import Mapa from './pages/Mapa';
 import Favoritos from './pages/Favoritos';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { FavoritosProvider } from './FavContext';
 
 const Stack = createNativeStackNavigator();
 
 export default function App() {
   return (
-    <NavigationContainer>
+    <FavoritosProvider>
+      <NavigationContainer>
       <Stack.Navigator initialRouteName="Mapa">
         <Stack.Screen name="Login" component={Login} />
         <Stack.Screen name="Cadastro" component={Cadastro} />
@@ -17,5 +19,6 @@ export default function App() {
         <Stack.Screen name="Favoritos" component={Favoritos} />
       </Stack.Navigator>
     </NavigationContainer>
+    </FavoritosProvider>
   );
 }

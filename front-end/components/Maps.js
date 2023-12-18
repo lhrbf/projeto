@@ -1,40 +1,37 @@
 import React, { useState, useEffect } from 'react';
-import { View, Modal, TouchableOpacity, Text, StyleSheet, Button } from 'react-native';
+import { View, Modal, TouchableOpacity, Text, StyleSheet } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import * as Location from 'expo-location';
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation } from '@react-navigation/native';
+import { useFavoritos } from './FavoritosContext';
+import ContainerFav from './ContainerFav';
 
 const Maps = () => {
+  const { favorites, addFavorite, removeFavorite } = useFavoritos();
   const [userLocation, setUserLocation] = useState(null);
   const [markers, setMarkers] = useState([]);
-  const [favorites, setFavorites] = useState([]);
   const [selectedMarker, setSelectedMarker] = useState(null);
   const [isModalVisible, setModalVisible] = useState(false);
-
   const navigation = useNavigation();
 
   useEffect(() => {
     const fetchLocation = async () => {
-      try {
-        let { status } = await Location.requestForegroundPermissionsAsync();
+      let { status } = await Location.requestForegroundPermissionsAsync();
 
-        if (status !== 'granted') {
-          console.error('Permission to access location was denied');
-          return;
-        }
-
-        const location = await Location.getCurrentPositionAsync({});
-        const { latitude, longitude } = location.coords;
-
-        setUserLocation({
-          latitude,
-          longitude,
-          latitudeDelta: 0.0922,
-          longitudeDelta: 0.0421,
-        });
-      } catch (error) {
-        console.error('Error fetching location:', error);
+      if (status !== 'granted') {
+        console.error('Permission to access location was denied');
+        return;
       }
+
+      const location = await Location.getCurrentPositionAsync({});
+      const { latitude, longitude } = location.coords;
+
+      setUserLocation({
+        latitude,
+        longitude,
+        latitudeDelta: 0.0922,
+        longitudeDelta: 0.0421,
+      });
     };
 
     fetchLocation();
@@ -56,11 +53,9 @@ const Maps = () => {
     setMarkers(updatedMarkers);
 
     if (selectedMarker.isFavorite) {
-      setFavorites((prevFavorites) => [...prevFavorites, selectedMarker]);
+      removeFavorite(selectedMarker.id);
     } else {
-      setFavorites((prevFavorites) =>
-        prevFavorites.filter((fav) => fav.id !== selectedMarker.id)
-      );
+      addFavorite(selectedMarker);
     }
 
     toggleModal();
@@ -68,6 +63,14 @@ const Maps = () => {
 
   const navigateToFavorites = () => {
     navigation.navigate('Favoritos', { favorites });
+  };
+
+  const highlightMarker = (markerId) => {
+    const updatedMarkers = markers.map((m) => ({
+      ...m,
+      isHighlighted: m.id === markerId,
+    }));
+    setMarkers(updatedMarkers);
   };
 
   return (
@@ -86,6 +89,7 @@ const Maps = () => {
                 coordinate={{ latitude: marker.latitude, longitude: marker.longitude }}
                 title={marker.name}
                 onPress={() => handleMarkerPress(marker)}
+                pinColor={marker.isHighlighted ? 'blue' : 'red'}
               />
             ))}
           </MapView>
@@ -104,6 +108,7 @@ const Maps = () => {
           </Modal>
         </>
       )}
+      <ContainerFav onLocationPress={highlightMarker} />
     </View>
   );
 };
