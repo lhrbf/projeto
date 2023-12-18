@@ -4,13 +4,11 @@ import Cadastro from './pages/Cadastro';
 import Mapa from './pages/Mapa';
 import Favoritos from './pages/Favoritos';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 const Stack = createNativeStackNavigator();
 
 export default function App() {
   return (
-   <GestureHandlerRootView>
     <NavigationContainer>
       <Stack.Navigator initialRouteName="Mapa">
         <Stack.Screen name="Login" component={Login} />
@@ -19,6 +17,5 @@ export default function App() {
         <Stack.Screen name="Favoritos" component={Favoritos} />
       </Stack.Navigator>
     </NavigationContainer>
-   </GestureHandlerRootView>
   );
 }

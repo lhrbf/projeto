@@ -1,140 +1,143 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Modal, TouchableOpacity, Text, StyleSheet, Button } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import * as Location from 'expo-location';
-import ContainerFav from './ContainerFav';
+import { useNavigation } from "@react-navigation/native";
 
-const Maps = ({ onUpdateLocal }) => {
-  const [region, setRegion] = useState(null);
+const Maps = () => {
+  const [userLocation, setUserLocation] = useState(null);
   const [markers, setMarkers] = useState([]);
-  const [favoriteLocations, setFavoriteLocations] = useState([]);
+  const [favorites, setFavorites] = useState([]);
+  const [selectedMarker, setSelectedMarker] = useState(null);
+  const [isModalVisible, setModalVisible] = useState(false);
 
-  const fetchLocation = async () => {
-    try {
-      const { status } = await Location.requestForegroundPermissionsAsync();
-
-      if (status !== 'granted') {
-        console.error('Permission to access location was denied');
-        return;
-      }
-
-      const location = await Location.getCurrentPositionAsync({});
-      const { latitude, longitude } = location.coords;
-
-      setRegion({
-        latitude,
-        longitude,
-        latitudeDelta: 0.0922,
-        longitudeDelta: 0.0421,
-      });
-
-      onUpdateLocal({ latitude, longitude });
-    } catch (error) {
-      console.error('Error fetching location:', error);
-    }
-  };
-
-  const fetchMarkers = async () => {
-    try {
-      const response = await fetch('sua_api_aqui');
-      const data = await response.json();
-      setMarkers(data);
-    } catch (error) {
-      console.error('Error fetching markers:', error);
-    }
-  };
-
-  const initializeFavorites = () => {
-    const initialFavoriteLocations = [];
-    setFavoriteLocations(initialFavoriteLocations);
-  };
-
-  const watchLocation = async () => {
-    const locationWatchId = await Location.watchPositionAsync(
-      { accuracy: Location.Accuracy.High, timeInterval: 1000 },
-      (location) => {
-        const { latitude, longitude } = location.coords;
-        setRegion((prevRegion) => ({
-          ...prevRegion,
-          latitude,
-          longitude,
-        }));
-        onUpdateLocal({ latitude, longitude });
-      }
-    );
-
-    return () => {
-      if (locationWatchId) {
-        locationWatchId.remove();
-      }
-    };
-  };
+  const navigation = useNavigation();
 
   useEffect(() => {
-    const fetchData = async () => {
-      await fetchLocation();
-      await fetchMarkers();
-      initializeFavorites();
-      const stopLocationWatch = await watchLocation();
+    const fetchLocation = async () => {
+      try {
+        let { status } = await Location.requestForegroundPermissionsAsync();
 
-      return () => {
-        if (stopLocationWatch) {
-          stopLocationWatch();
+        if (status !== 'granted') {
+          console.error('Permission to access location was denied');
+          return;
         }
-      };
+
+        const location = await Location.getCurrentPositionAsync({});
+        const { latitude, longitude } = location.coords;
+
+        setUserLocation({
+          latitude,
+          longitude,
+          latitudeDelta: 0.0922,
+          longitudeDelta: 0.0421,
+        });
+      } catch (error) {
+        console.error('Error fetching location:', error);
+      }
     };
 
-    fetchData();
-  }, [onUpdateLocal]);
+    fetchLocation();
+  }, []);
 
-  const handleFavoriteToggle = (markerId) => {
-    const updatedMarkers = markers.map((marker) =>
-      marker.id === markerId ? { ...marker, favorited: !marker.favorited } : marker
+  const toggleModal = () => {
+    setModalVisible(!isModalVisible);
+  };
+
+  const handleMarkerPress = (marker) => {
+    setSelectedMarker(marker);
+    toggleModal();
+  };
+
+  const handleStarPress = () => {
+    const updatedMarkers = markers.map((m) =>
+      m.id === selectedMarker.id ? { ...m, isFavorite: !m.isFavorite } : m
     );
     setMarkers(updatedMarkers);
 
-    const updatedFavoriteLocations = updatedMarkers.filter((marker) => marker.favorited);
-    setFavoriteLocations(updatedFavoriteLocations);
+    if (selectedMarker.isFavorite) {
+      setFavorites((prevFavorites) => [...prevFavorites, selectedMarker]);
+    } else {
+      setFavorites((prevFavorites) =>
+        prevFavorites.filter((fav) => fav.id !== selectedMarker.id)
+      );
+    }
+
+    toggleModal();
+  };
+
+  const navigateToFavorites = () => {
+    navigation.navigate('Favoritos', { favorites });
   };
 
   return (
-    <View style={{ flex: 1 }}>
-      {region ? (
+    <View style={styles.container}>
+      {userLocation && (
         <>
           <MapView
             style={styles.map}
-            region={region}
-            showsUserLocation={true}
-            followsUserLocation={true}
+            region={userLocation}
+            showsUserLocation
+            followsUserLocation
           >
             {markers.map((marker) => (
               <Marker
                 key={marker.id}
-                coordinate={{
-                  latitude: marker.latitude,
-                  longitude: marker.longitude,
-                }}
+                coordinate={{ latitude: marker.latitude, longitude: marker.longitude }}
                 title={marker.name}
-                description={marker.description}
+                onPress={() => handleMarkerPress(marker)}
               />
             ))}
           </MapView>
-          <ContainerFav favoriteLocations={favoriteLocations} onToggleFavorite={handleFavoriteToggle} />
+          <TouchableOpacity
+            style={styles.favoritesButton}
+            onPress={navigateToFavorites}
+          >
+            <Text style={styles.favoritesButtonText}>Favoritos</Text>
+          </TouchableOpacity>
+          <Modal animationType="slide" transparent={true} visible={isModalVisible}>
+            <View style={styles.modalContainer}>
+              <TouchableOpacity style={styles.modalContent} onPress={handleStarPress}>
+                <Text>{selectedMarker?.isFavorite ? 'Desfavoritar' : 'Favoritar'}</Text>
+              </TouchableOpacity>
+            </View>
+          </Modal>
         </>
-      ) : (
-        <Text style={styles.loadingText}>Carregando mapa...</Text>
       )}
     </View>
   );
 };
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
   map: {
     flex: 1,
   },
-  loadingText: {
-    textAlign: 'center',
-    marginTop: 10,
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContent: {
+    padding: 20,
+    backgroundColor: 'white',
+    borderTopLeftRadius: 10,
+    borderTopRightRadius: 10,
+  },
+  favoritesButton: {
+    position: 'absolute',
+    bottom: 20,
+    right: 25,
+    backgroundColor: 'green',
+    padding: 10,
+    borderRadius: 8,
+  },
+  favoritesButtonText: {
+    color: 'white',
+    fontSize: 20,
   },
 });
 

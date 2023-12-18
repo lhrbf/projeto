@@ -1,56 +1,60 @@
-import React from "react";
-import { View, Text, FlatList, TouchableOpacity, StyleSheet } from "react-native";
-import Icon from "react-native-vector-icons/Ionicons";
+import React from 'react';
+import { View, Text, TouchableOpacity, FlatList, StyleSheet } from 'react-native';
 
-const ContainerFav = ({ favoriteLocations, onToggleFavorite }) => {
+const ContainerFav = ({ favorites, onLocationPress, onRemoveFavorite }) => {
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>Locais Favoritos</Text>
-      {favoriteLocations.length > 0 ? (
-        <FlatList
-          data={favoriteLocations}
-          keyExtractor={(item) => item.id.toString()}
-          renderItem={({ item }) => (
-            <TouchableOpacity style={styles.favoriteItem} onPress={() => onToggleFavorite(item.id)}>
-              <Text>{item.name}</Text>
-              <Icon name="star" size={20} color="gold" />
-            </TouchableOpacity>
-          )}
-        />
-      ) : (
-        <Text style={styles.noFavoritesText}>Nenhum local favorito.</Text>
-      )}
+      <Text style={styles.title}>Locais Favoritados</Text>
+      <FlatList
+        data={favorites}
+        keyExtractor={(item) => item.id.toString()}
+        renderItem={({ item }) => (
+          <TouchableOpacity
+            style={styles.itemContainer}
+            onPress={() => onLocationPress(item)}
+            onLongPress={() => onRemoveFavorite(item)}
+          >
+            <Text>{item.name}</Text>
+          </TouchableOpacity>
+        )}
+      />
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    position: "absolute",
-    top: 10,
-    right: 10,
-    backgroundColor: "white",
-    padding: 10,
-    borderRadius: 5,
-    elevation: 3,
+    position: 'absolute',
+    top: 90,
+    left: "24%",
+    width: 200,
+    maxHeight: 300,
+    backgroundColor: 'white',
+    borderRadius: 8,
+    padding: 8,
+    elevation: 4,
+    zIndex: 1,
+    borderWidth:2,
+    borderColor: "orange",
   },
-  header: {
-    fontWeight: "bold",
-    marginBottom: 5,
+  title: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    margin: 5,
+    alignSelf: 'center',
+    color: "green",
   },
-  favoriteItem: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 5,
-  },
-  favoriteText: {
-    flex: 1,
-    marginRight: 10,
-  },
-  noFavoritesText: {
-    fontStyle: "italic",
-    color: "gray",
+  itemContainer: {
+    padding: 2,
+    width: 300,
+    borderBottomWidth: 1,
+    borderBottomColor: "orange",
+    color: "green",
+    alignContent: 'center',
+    alignItems: 'center',
+    alignSelf: 'center',
+    justifyContent: 'center',
+    gap: 3,
   },
 });
 

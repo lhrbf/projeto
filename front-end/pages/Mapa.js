@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import BarraInfMaps from "../components/BarraInfMaps";
 import Maps from "../components/Maps";
+import Perfil from "../components/Perfil"
 
 const Mapa = () => {
   const [seuLocal, setSeuLocal] = useState(null);
@@ -13,7 +13,7 @@ const Mapa = () => {
   return (
     <>
       <Maps onUpdateLocal={setSeuLocal} />
-      <BarraInfMaps seuLocal={seuLocal} destino={destino} onUpdateDestino={handleUpdateDestino} />
+      <Perfil />
     </>
   );
 }
