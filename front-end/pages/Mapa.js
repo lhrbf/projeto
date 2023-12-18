@@ -1,15 +1,19 @@
 import React, { useState } from "react";
-import MapScreen from "../components/MapScreen";
 import BarraInfMaps from "../components/BarraInfMaps";
+import Maps from "../components/Maps";
 
-function Mapa() {
+const Mapa = () => {
   const [seuLocal, setSeuLocal] = useState(null);
   const [destino, setDestino] = useState('');
 
+  const handleUpdateDestino = (novoDestino) => {
+    setDestino(novoDestino);
+  };
+
   return (
     <>
-      <MapScreen onUpdateLocal={setSeuLocal} />
-      <BarraInfMaps seuLocal={seuLocal} destino={destino} />
+      <Maps onUpdateLocal={setSeuLocal} />
+      <BarraInfMaps seuLocal={seuLocal} destino={destino} onUpdateDestino={handleUpdateDestino} />
     </>
   );
 }

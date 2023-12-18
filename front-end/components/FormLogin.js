@@ -1,7 +1,8 @@
 import { useNavigation } from "@react-navigation/native";
 import { StatusBar } from "expo-status-bar";
+import { useState } from "react";
 import React from "react";
-import { Button, StyleSheet, TextInput, TouchableOpacity, View } from "react-native";
+import { Button, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 
 function FormLogin() {
 
@@ -12,7 +13,7 @@ function FormLogin() {
   
     const handleSubmit = async () => {
       try {
-        const resposta = await fetch('https://localhost:300/user', {
+        const resposta = await fetch('https://localhost:3000/user', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

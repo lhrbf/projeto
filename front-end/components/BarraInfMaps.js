@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, TextInput, View, TouchableOpacity, Animated } from 'react-native';
+import { StyleSheet, TextInput, View, TouchableOpacity, Animated, Text } from 'react-native';
 import { PanGestureHandler, State } from 'react-native-gesture-handler';
 
 const BarraInfMaps = ({ seuLocal, onStartRoute }) => {

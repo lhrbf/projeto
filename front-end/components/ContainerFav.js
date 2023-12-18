@@ -44,6 +44,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 5,
   },
+  favoriteText: {
+    flex: 1,
+    marginRight: 10,
+  },
   noFavoritesText: {
     fontStyle: "italic",
     color: "gray",
