@@ -36,7 +36,7 @@ function FormCadastro() {
   const navegarParaOutraPagina = () => {
     navigation.navigate('Login');
   };
-//Formulário Cadastro
+
   return (
     <View style={styles.container}>
       <TextInput

@@ -11,14 +11,12 @@ function FormLogin() {
 
   const handleSubmit = async () => {
     try {
-      //Validar entrada
       if (!email || !password) {
         setMensagemErro('Por favor, preencha todos os campos.');
         return;
       }
 
       setLoading(true);
-      //Resposta da Api para a validação
       const resposta = await fetch('http://localhost:3000/api/login', {
         method: 'POST',
         headers: {
@@ -43,7 +41,7 @@ function FormLogin() {
   const navegarParaOutraPagina = () => {
     navigation.navigate('Cadastro');
   };
-//Formulário Login
+  
   return (
     <View style={styles.container}>
       <TextInput

@@ -1,6 +1,5 @@
-//GeoJSON da prefeitura com dados para alimentar o front
-
 const geoJSONData =
+
 {
   "type": "FeatureCollection",
                                                                                   
