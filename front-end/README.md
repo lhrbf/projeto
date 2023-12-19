@@ -15,3 +15,5 @@ axios: npm install axios
 Geolocalizção: npx expo install expo-location
 
 Map view: npx expo install react-native-maps
+
+Calculo da distância: npm install haversine-geolocation

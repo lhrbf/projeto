@@ -1,170 +1,106 @@
-import React, { useState, useEffect } from 'react';
-import { View, Modal, TouchableOpacity, Text, StyleSheet } from 'react-native';
-import MapView, { Marker,Geojson } from 'react-native-maps';
-import * as Location from 'expo-location';
-import { useNavigation } from '@react-navigation/native';
-import { useFavoritos } from '../FavContext';
-import ContainerFav from './ContainerFav';
-import axios from 'axios';
-import geoJSONData from './Geo'
-import Icon from 'react-native-vector-icons/FontAwesome';
+import React, { useEffect, useState } from 'react';
+import { View, Text, Modal, Button } from 'react-native';
+import MapView, { Marker } from 'react-native-maps';
+import { haversine } from 'haversine-geolocation';
+import geoJSONData from './Geo';  
 
-
-const Maps = () => {
-  const [geodata] = useState([]);
-  const { favorites, addFavorite, removeFavorite } = useFavoritos();
-  const [userLocation, setUserLocation] = useState(null);
-  const [markers, setMarkers] = useState([]);
-  const [selectedMarker, setSelectedMarker] = useState(null);
-  const [isModalVisible, setModalVisible] = useState(false);
-  const navigation = useNavigation();
+function Maps() {
+  const [location, setLocation] = useState(null);
+  const [errorMsg, setErrorMsg] = useState(null);
+  const [schools, setSchools] = useState([]);
+  const [selectedPoint, setSelectedPoint] = useState(null);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [distance, setDistance] = useState(null);
 
   useEffect(() => {
-    const fetchLocation = async () => {
-      let { status } = await Location.requestForegroundPermissionsAsync();
-
-      if (status !== 'granted') {
-        console.error('Permission to access location was denied');
-        return;
-      }
-
-      const location = await Location.getCurrentPositionAsync({});
-      const { latitude, longitude } = location.coords;
-
-      setUserLocation({
-        latitude,
-        longitude,
-        latitudeDelta: 0.0922,
-        longitudeDelta: 0.0421,
-      });
-    };
-
-    fetchLocation();
-  }, []);
-
-  const toggleModal = () => {
-    setModalVisible(!isModalVisible);
-  };
-
-  const handleMarkerPress = (marker) => {
-    setSelectedMarker(marker);
-    toggleModal();
-  };
-
-  const handleStarPress = () => {
-    const updatedMarkers = markers.map((m) =>
-      m.id === selectedMarker.id ? { ...m, isFavorite: !m.isFavorite } : m
-    );
-    setMarkers(updatedMarkers);
-
-    if (selectedMarker.isFavorite) {
-      removeFavorite(selectedMarker.id);
-    } else {
-      addFavorite(selectedMarker);
+  (async () => {
+    let { status } = await requestLocationPermission();
+    if (status !== 'granted') {
+      setErrorMsg('Permission to access location was denied');
+      return;
     }
 
-    toggleModal();
+    try {
+      let location = await Location.getCurrentPositionAsync({});
+      setLocation(location.coords);
+    } catch (error) {
+      console.error('Error getting current location:', error);
+      setErrorMsg('Error getting current location');
+    }
+  })();
+}, []);
+
+  useEffect(() => {
+    setSchools(geoJSONData.features);
+  }, []);
+
+  const requestLocationPermission = async () => {
+    return await Location.requestForegroundPermissionsAsync();
   };
 
-  const navigateToFavorites = () => {
-    navigation.navigate('Favoritos', { favorites });
+  const handleMarkerPress = (point) => {
+    setSelectedPoint(point);
+    calculateDistance(point);
+    setModalVisible(true);
   };
 
-  const highlightMarker = (markerId) => {
-    const updatedMarkers = markers.map((m) => ({
-      ...m,
-      isHighlighted: m.id === markerId,
-    }));
-    setMarkers(updatedMarkers);
+  const calculateDistance = (point) => {
+    if (location && point) {
+      const userCoordinates = {
+        latitude: location.latitude,
+        longitude: location.longitude,
+      };
+
+      const pointCoordinates = {
+        latitude: point.geometry.coordinates[0][0][1],
+        longitude: point.geometry.coordinates[0][0][0],
+      };
+
+      const distance = haversine(userCoordinates, pointCoordinates, { unit: 'km' });
+      setDistance(distance);
+    }
   };
 
   return (
-    <View style={styles.container}>
-      {userLocation && (
-        <>
-          <MapView
-            style={styles.map}
-            region={userLocation}
-            showsUserLocation
-            followsUserLocation
-            zoomEnabled={true}
-          >
-              {geoJSONData && (
+    <View style={{ flex: 1 }}>
+      <MapView
+        style={{ flex: 1 }}
+        region={{
+          latitude: location ? location.latitude : 0,
+          longitude: location ? location.longitude : 0,
+          latitudeDelta: 0.0922,
+          longitudeDelta: 0.0421,
+        }}
+      >
+        {schools.map((school, index) => (
+          <Marker
+            key={index}
+            coordinate={{
+              latitude: school.geometry.coordinates[0][0][1],
+              longitude: school.geometry.coordinates[0][0][0],
+            }}
+            onPress={() => handleMarkerPress(school)}
+          />
+        ))}
+      </MapView>
 
-            <Geojson
-              geojson={geoJSONData}
-              strokeWidth={2}
-              strokeColor='red'
-              fillColor='green'
-
-            />
-           )} 
-             
-             {markers.map((marker) => (
-              <Marker
-                key={marker.id}
-                coordinate={{ latitude: marker.latitude, longitude: marker.longitude }}
-                title={marker.name}
-                pinColor={marker.isHighlighted ? 'blue' : 'red'}
-                onPress={() => handleMarkerPress(marker)}
-              >
-                <TouchableOpacity>
-                  <Icon name="map-marker" size={20} color="orange" />
-                </TouchableOpacity>
-              </Marker>
-            ))}
-          </MapView>
-          <TouchableOpacity
-            style={styles.favoritesButton}
-            onPress={navigateToFavorites}
-          >
-            <Text style={styles.favoritesButtonText}>Favoritos</Text>
-          </TouchableOpacity>
-          <Modal animationType="slide" transparent={true} visible={isModalVisible}>
-            <View style={styles.modalContainer}>
-              <TouchableOpacity style={styles.modalContent} onPress={handleStarPress}>
-                <Text>{selectedMarker?.isFavorite ? 'Desfavoritar' : 'Favoritar'}</Text>
-              </TouchableOpacity>
-            </View>
-          </Modal>
-        </>
-      )}
-      <ContainerFav onLocationPress={highlightMarker} />
+      <Modal
+        animationType="slide"
+        transparent={false}
+        visible={modalVisible}
+        onRequestClose={() => {
+          setModalVisible(false);
+        }}
+      >
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          <Text>{selectedPoint && selectedPoint.properties.escola_nome}</Text>
+          <Text>{selectedPoint && selectedPoint.properties.endereco}</Text>
+          {distance && <Text>Distância: {distance.toFixed(2)} km</Text>}
+          <Button title="Fechar" onPress={() => setModalVisible(false)} />
+        </View>
+      </Modal>
     </View>
   );
-};
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  map: {
-    flex: 1,
-  },
-  modalContainer: {
-    flex: 1,
-    justifyContent: 'flex-end',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-  },
-  modalContent: {
-    padding: 20,
-    backgroundColor: 'white',
-    borderTopLeftRadius: 10,
-    borderTopRightRadius: 10,
-  },
-  favoritesButton: {
-    position: 'absolute',
-    bottom: 20,
-    right: 25,
-    backgroundColor: 'green',
-    padding: 10,
-    borderRadius: 8,
-  },
-  favoritesButtonText: {
-    color: 'white',
-    fontSize: 20,
-  },
-});
+}
 
 export default Maps;
