@@ -7,7 +7,7 @@ import { useFavoritos } from '../FavContext';
 import ContainerFav from './ContainerFav';
 import axios from 'axios';
 import geoJSONData from './Geo'
-import { Icon } from 'react-native-vector-icons/Icon';
+import Icon from 'react-native-vector-icons/FontAwesome';
 
 
 const Maps = () => {
@@ -37,7 +37,6 @@ const Maps = () => {
         latitudeDelta: 0.0922,
         longitudeDelta: 0.0421,
       });
-      geodata(geoJSONData.features);
     };
 
     fetchLocation();
@@ -101,17 +100,18 @@ const Maps = () => {
             />
            )} 
              
-            {markers.map((marker) => (
-            <TouchableOpacity onPress={() => handleMarkerPress(marker)}>
-              <Icon name= "map-marker" size={20} color="orange">
+             {markers.map((marker) => (
               <Marker
                 key={marker.id}
                 coordinate={{ latitude: marker.latitude, longitude: marker.longitude }}
                 title={marker.name}
                 pinColor={marker.isHighlighted ? 'blue' : 'red'}
-              />
-              </Icon>
-            </TouchableOpacity>
+                onPress={() => handleMarkerPress(marker)}
+              >
+                <TouchableOpacity>
+                  <Icon name="map-marker" size={20} color="orange" />
+                </TouchableOpacity>
+              </Marker>
             ))}
           </MapView>
           <TouchableOpacity

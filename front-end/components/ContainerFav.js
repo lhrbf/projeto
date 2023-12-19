@@ -1,9 +1,9 @@
-// ContainerFav.js
 import React from 'react';
 import { View, Text, TouchableOpacity, FlatList, StyleSheet } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { useFavoritos } from '../FavContext';
 
+//remover e adicionar favoritos nas paginas favoritos e mapa simultaneamente
 const ContainerFav = ({ onLocationPress }) => {
   const { favorites, removeFavorite } = useFavoritos();
 
