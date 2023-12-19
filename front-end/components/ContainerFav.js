@@ -1,6 +1,22 @@
+<<<<<<< Updated upstream
 import React from "react";
 import { View, Text, FlatList, TouchableOpacity, StyleSheet } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
+=======
+// ContainerFav.js
+import React from 'react';
+import { View, Text, TouchableOpacity, FlatList, StyleSheet } from 'react-native';
+import Icon from 'react-native-vector-icons/FontAwesome';
+import { useFavoritos } from '../FavContext';
+
+const ContainerFav = ({ onLocationPress }) => {
+  const { favorites, removeFavorite } = useFavoritos();
+
+  const handleLocationPress = (item) => {
+    onLocationPress(item.id);
+    console.log(`Pressed on location: ${item.name}`);
+  };
+>>>>>>> Stashed changes
 
 const ContainerFav = ({ favoriteLocations, onToggleFavorite }) => {
   return (
