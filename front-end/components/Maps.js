@@ -88,6 +88,7 @@ const Maps = () => {
             region={userLocation}
             showsUserLocation
             followsUserLocation
+            zoomEnabled={true}
           >
               {geoJSONData && (
 
