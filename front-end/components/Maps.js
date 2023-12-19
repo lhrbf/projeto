@@ -101,13 +101,12 @@ const Maps = () => {
            )} 
              
             {markers.map((marker) => (
-            <TouchableOpacity>
+            <TouchableOpacity onPress={() => handleMarkerPress(marker)}>
               <Icon name= "map-marker" size={20} color="orange">
               <Marker
                 key={marker.id}
                 coordinate={{ latitude: marker.latitude, longitude: marker.longitude }}
                 title={marker.name}
-                onPress={() => handleMarkerPress(marker)}
                 pinColor={marker.isHighlighted ? 'blue' : 'red'}
               />
               </Icon>
