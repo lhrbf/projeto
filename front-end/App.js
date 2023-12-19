@@ -4,7 +4,6 @@ import Cadastro from './pages/Cadastro';
 import Mapa from './pages/Mapa';
 import Favoritos from './pages/Favoritos';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { FavoritosProvider } from './FavContext';
 
 const Stack = createNativeStackNavigator();
 

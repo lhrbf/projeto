@@ -15,5 +15,3 @@ axios: npm install axios
 Geolocalizção: npx expo install expo-location
 
 Map view: npx expo install react-native-maps
-
-deslizar: npm install react-native-gesture-handler
